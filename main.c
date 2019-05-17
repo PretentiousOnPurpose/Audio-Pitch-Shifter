@@ -1,7 +1,7 @@
 #include "dsk6713_aic23.h"
 #define BUFF_LEN 1024
-
-#define DIV 4
+#define N 7
+#define DIV 2
 
 Uint32 fs = DSK6713_AIC23_FREQ_8KHZ;
 #define DSK6713_AIC23_INPUT_MIC 0x0015
@@ -13,19 +13,22 @@ int skip_flag = 0;
 int buff[BUFF_LEN];
 Uint16 inputsource = DSK6713_AIC23_INPUT_LINE;
 
-int filter_in[7];
+int filter_in[N];
 //double filter_coeff[11] = { 0.0003,   -0.0001,    0.0002,   -0.0002,    0.0002,    0.9998,    0.0002,   -0.0002,    0.0002,   -0.0001,    0.0003};
-double filter_coeff[7] = {0.0003,   -0.0001,    0.0001,    0.9999,    0.0001,   -0.0001, 0.0003};
+double filter_coeff[N] = {0.0003,   -0.0001,    0.0001,    0.9999,    0.0001,   -0.0001, 0.0003};
+
+//double filter_coeff[N] = {-0.0038,    0.0217,   -0.0205,   -0.0822,    0.2744,    0.6214,    0.2744,   -0.0822,   -0.0205,    0.0217,   -0.0038};
+
 void output(int n) {
 	int i, j, sum = 0;
 
 	filter_in[0] = n;
 
-	for (i = 0; i < 7; i++) {
+	for (i = 0; i < N; i++) {
 	     sum += filter_coeff[i] * filter_in[i];
 	}
 
-	for (j = 6; j > 0; j--) {
+	for (j = N-1; j > 0; j--) {
 		filter_in[j] = filter_in[j - 1];
 	}
 
